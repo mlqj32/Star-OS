@@ -18,6 +18,18 @@ Star OS 是一款运行在**应用层**的桌面操作系统环境。它在 Wind
 
 ---
 
+## 👤 作者与相关项目 Author
+
+| | 链接 |
+|---|---|
+| 开发者 Developer | **星薇Star** |
+| B 站主页 Bilibili | [space.bilibili.com/259516939](https://space.bilibili.com/259516939) |
+| 独立游戏《萝薇日记》Steam | [store.steampowered.com/app/4448620](https://store.steampowered.com/app/4448620/_/) |
+
+> 链接与 Star OS 内置「项目说明」卡片一致，欢迎关注 B 站动态或前往 Steam 了解《萝薇日记》。
+
+---
+
 ## ✨ 特性 Highlights
 
 | 模块 | 说明 |
@@ -140,5 +152,8 @@ MIT License © 星薇Star
 ---
 
 <p align="center">
-  如果这个项目对你有帮助，欢迎 ⭐ Star 支持一下！
+  如果这个项目对你有帮助，欢迎 ⭐ Star 支持一下！<br>
+  <a href="https://space.bilibili.com/259516939">B 站 · 星薇Star</a>
+  ·
+  <a href="https://store.steampowered.com/app/4448620/_/">Steam · 《萝薇日记》</a>
 </p>
