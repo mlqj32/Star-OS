@@ -1,0 +1,523 @@
+
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star OS</title>
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('star-theme');
+        var theme = savedTheme === 'light' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', theme);
+      } catch (_) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <style>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #08111f;
+      color: #eef4ff;
+      font-family: "Segoe UI Variable", "Segoe UI", "Microsoft YaHei UI", "PingFang SC", sans-serif;
+    }
+    :root[data-theme="light"],
+    :root[data-theme="light"] body {
+      background: #edf3ff;
+      color: #122033;
+    }
+    body.star-booting #boot-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 60000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      background:
+        linear-gradient(180deg, rgba(3, 8, 18, 0.34), rgba(3, 8, 18, 0.58)),
+        radial-gradient(circle at 14% 16%, rgba(96, 165, 250, 0.18), transparent 34%),
+        radial-gradient(circle at 86% 22%, rgba(34, 197, 94, 0.12), transparent 28%),
+        radial-gradient(circle at 74% 78%, rgba(244, 114, 182, 0.16), transparent 32%);
+      backdrop-filter: blur(18px) saturate(145%);
+      -webkit-backdrop-filter: blur(18px) saturate(145%);
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash {
+      background:
+        linear-gradient(180deg, rgba(244, 247, 255, 0.46), rgba(231, 237, 255, 0.68)),
+        radial-gradient(circle at 12% 16%, rgba(59, 130, 246, 0.16), transparent 34%),
+        radial-gradient(circle at 82% 18%, rgba(14, 165, 233, 0.12), transparent 26%),
+        radial-gradient(circle at 74% 78%, rgba(236, 72, 153, 0.12), transparent 32%);
+    }
+    body.star-booting #boot-splash .boot-splash__center {
+      width: min(1120px, calc(100vw - 40px));
+      padding: 28px 30px 26px;
+      border-radius: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(180deg, rgba(12, 18, 32, 0.84), rgba(10, 15, 28, 0.66));
+      box-shadow: 0 28px 70px rgba(0, 0, 0, 0.38);
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__center {
+      border-color: rgba(148, 163, 184, 0.24);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(244, 247, 255, 0.74));
+      box-shadow: 0 28px 70px rgba(15, 23, 42, 0.14);
+    }
+    body.star-booting #boot-splash .boot-splash__layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+      gap: 22px;
+      align-items: stretch;
+    }
+    body.star-booting #boot-splash .boot-splash__bios {
+      padding: 18px 18px 16px;
+      border-radius: 22px;
+      border: 1px solid rgba(96, 165, 250, 0.18);
+      background:
+        linear-gradient(180deg, rgba(3, 8, 18, 0.72), rgba(7, 12, 22, 0.54)),
+        radial-gradient(circle at 100% 0, rgba(96, 165, 250, 0.12), transparent 34%);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      font-family: "Cascadia Mono", "Consolas", "SFMono-Regular", monospace;
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__bios {
+      border-color: rgba(59, 130, 246, 0.18);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.82), rgba(240, 246, 255, 0.72)),
+        radial-gradient(circle at 100% 0, rgba(59, 130, 246, 0.08), transparent 34%);
+    }
+    body.star-booting #boot-splash .boot-splash__bios-head {
+      padding-bottom: 12px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+      letter-spacing: 0.24em;
+      color: #8dd6ff;
+      text-transform: uppercase;
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__bios-head {
+      border-bottom-color: rgba(59, 130, 246, 0.12);
+      color: #2563eb;
+    }
+    body.star-booting #boot-splash .boot-splash__bios-line {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 14px;
+      color: rgba(226, 232, 240, 0.76);
+      transition: background 0.22s ease, color 0.22s ease, transform 0.22s ease, border-color 0.22s ease;
+      border: 1px solid transparent;
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__bios-line {
+      color: #475569;
+    }
+    body.star-booting #boot-splash .boot-splash__bios-line + .boot-splash__bios-line {
+      margin-top: 8px;
+    }
+    body.star-booting #boot-splash .boot-splash__bios-line.is-active {
+      background: rgba(96, 165, 250, 0.12);
+      border-color: rgba(96, 165, 250, 0.18);
+      color: #eaf5ff;
+      transform: translateX(2px);
+    }
+    body.star-booting #boot-splash .boot-splash__bios-line.is-complete {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.16);
+      color: #d1fae5;
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__bios-line.is-active {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: rgba(59, 130, 246, 0.16);
+      color: #0f172a;
+    }
+    :root[data-theme="light"] body.star-booting #boot-splash .boot-splash__bios-line.is-complete {
+      background: rgba(34, 197, 94, 0.1);
+      border-color: rgba(34, 197, 94, 0.16);
+      color: #14532d;
+    }
+    body.star-booting #boot-splash .boot-splash__bios-label {
+      font-size: 12px;
+      letter-spacing: 0.06em;
+    }
+    body.star-booting #boot-splash .boot-splash__bios-value {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+    body.star-booting #boot-splash .boot-splash__hero {
+      min-width: 0;
+    }
+    body.star-booting #boot-splash .boot-splash__logo {
+      width: 86px;
+      height: 86px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      padding: 10px;
+      border-radius: 24px;
+      background: linear-gradient(145deg, rgba(124, 156, 255, 0.18), rgba(255, 255, 255, 0.08));
+    }
+    body.star-booting #boot-splash .boot-splash__logo span {
+      border-radius: 12px;
+      background: linear-gradient(145deg, #7c9cff, #2563eb);
+    }
+    body.star-booting #boot-splash .boot-splash__title {
+      margin: 12px 0 0;
+      font-size: clamp(34px, 5vw, 58px);
+      line-height: 1.03;
+      letter-spacing: -0.03em;
+    }
+    body.star-booting #boot-splash .boot-splash__subtitle,
+    body.star-booting #boot-splash .boot-splash__status,
+    body.star-booting #boot-splash .boot-splash__meta {
+      margin-top: 14px;
+    }
+    body.star-booting #boot-splash .boot-splash__progress {
+      height: 10px;
+      margin-top: 24px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      overflow: hidden;
+    }
+    body.star-booting #boot-splash .boot-splash__progress-bar {
+      display: block;
+      width: 100%;
+      height: 100%;
+      border-radius: inherit;
+      transform-origin: left center;
+      transform: scaleX(0.06);
+      background: linear-gradient(90deg, #60a5fa 0%, #7c9cff 45%, #22d3ee 100%);
+    }
+    @media (max-width: 860px) {
+      body.star-booting #boot-splash .boot-splash__center {
+        width: min(100vw - 24px, 760px);
+        padding: 20px;
+      }
+      body.star-booting #boot-splash .boot-splash__layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body class="star-booting">
+  <div id="boot-splash" class="boot-splash" aria-live="polite">
+    <div class="boot-splash__aurora" aria-hidden="true"></div>
+    <div class="boot-splash__grid" aria-hidden="true"></div>
+    <div class="boot-splash__center">
+      <div class="boot-splash__layout">
+        <div class="boot-splash__bios" aria-hidden="true">
+          <div class="boot-splash__bios-head" id="boot-splash-bios-head">STAR BIOS :: BOOT SEQUENCE</div>
+          <div class="boot-splash__bios-line is-active" data-boot-stage="firmware">
+            <span class="boot-splash__bios-label" id="boot-bios-firmware-label">Firmware</span>
+            <span class="boot-splash__bios-value" id="boot-bios-firmware-value">READY</span>
+          </div>
+          <div class="boot-splash__bios-line" data-boot-stage="theme">
+            <span class="boot-splash__bios-label" id="boot-bios-theme-label">Theme Profile</span>
+            <span class="boot-splash__bios-value" id="boot-bios-theme-value">Pending</span>
+          </div>
+          <div class="boot-splash__bios-line" data-boot-stage="locale">
+            <span class="boot-splash__bios-label" id="boot-bios-locale-label">Locale Pack</span>
+            <span class="boot-splash__bios-value" id="boot-bios-locale-value">Pending</span>
+          </div>
+          <div class="boot-splash__bios-line" data-boot-stage="shell">
+            <span class="boot-splash__bios-label" id="boot-bios-shell-label">Shell Services</span>
+            <span class="boot-splash__bios-value" id="boot-bios-shell-value">Pending</span>
+          </div>
+          <div class="boot-splash__bios-line" data-boot-stage="desktop">
+            <span class="boot-splash__bios-label" id="boot-bios-desktop-label">Desktop Session</span>
+            <span class="boot-splash__bios-value" id="boot-bios-desktop-value">Pending</span>
+          </div>
+        </div>
+        <div class="boot-splash__hero">
+          <div class="boot-splash__brand">
+            <div class="boot-splash__logo" aria-hidden="true">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            <div class="boot-splash__eyebrow" id="boot-splash-eyebrow">STAR OS</div>
+            <h1 class="boot-splash__title" id="boot-splash-title">Star OS</h1>
+            <p class="boot-splash__subtitle" id="boot-splash-subtitle">Preparing your desktop, apps, and game experience.</p>
+          </div>
+          <div class="boot-splash__meta">
+            <div class="boot-splash__meta-card">
+              <span class="boot-splash__meta-label" id="boot-splash-author-label">Developer</span>
+              <strong class="boot-splash__meta-value" id="boot-splash-author-value">Xingwei Star</strong>
+            </div>
+            <div class="boot-splash__meta-card">
+              <span class="boot-splash__meta-label" id="boot-splash-game-label">Indie Game</span>
+              <strong class="boot-splash__meta-value" id="boot-splash-game-value">Rovi's Diary</strong>
+            </div>
+          </div>
+          <div class="boot-splash__progress" aria-hidden="true">
+            <span class="boot-splash__progress-bar" id="boot-splash-progress-bar"></span>
+          </div>
+          <div class="boot-splash__status" id="boot-splash-status">Starting system services.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      try {
+        var locale = localStorage.getItem('star-locale') || 'zh-CN';
+        var shortLocale = String(locale).split('-')[0];
+        var texts = {
+          'zh-CN': {
+            subtitle: '\u6b63\u5728\u4e3a\u4f60\u51c6\u5907\u684c\u9762\u3001\u5e94\u7528\u4e0e\u6e38\u620f\u4f53\u9a8c',
+            authorLabel: '\u5f00\u53d1\u8005',
+            authorValue: '\u661f\u8587Star',
+            gameLabel: '\u72ec\u7acb\u6e38\u620f',
+            gameValue: '\u841d\u8587\u65e5\u8bb0',
+            status: '\u6b63\u5728\u542f\u52a8\u7cfb\u7edf\u670d\u52a1',
+            biosHead: 'STAR BIOS :: \u542f\u52a8\u5e8f\u5217',
+            labels: ['\u56fa\u4ef6\u6821\u9a8c', '\u4e3b\u9898\u914d\u7f6e', '\u8bed\u8a00\u8d44\u6e90', '\u7cfb\u7edf\u5916\u58f3', '\u684c\u9762\u4f1a\u8bdd'],
+            values: ['\u5c31\u7eea', '\u7b49\u5f85', '\u7b49\u5f85', '\u7b49\u5f85', '\u7b49\u5f85']
+          },
+          'zh-TW': {
+            subtitle: '\u6b63\u5728\u70ba\u4f60\u6e96\u5099\u684c\u9762\u3001\u61c9\u7528\u8207\u904a\u6232\u9ad4\u9a57',
+            authorLabel: '\u958b\u767c\u8005',
+            authorValue: '\u661f\u8587Star',
+            gameLabel: '\u7368\u7acb\u904a\u6232',
+            gameValue: '\u863f\u8587\u65e5\u8a18',
+            status: '\u6b63\u5728\u555f\u52d5\u7cfb\u7d71\u670d\u52d9',
+            biosHead: 'STAR BIOS :: \u555f\u52d5\u5e8f\u5217',
+            labels: ['\u97cc\u9ad4\u6821\u9a57', '\u4e3b\u984c\u914d\u7f6e', '\u8a9e\u8a00\u8cc7\u6e90', '\u7cfb\u7d71\u5916\u6bbc', '\u684c\u9762\u5de5\u4f5c\u968e\u6bb5'],
+            values: ['\u5c31\u7dd2', '\u7b49\u5f85', '\u7b49\u5f85', '\u7b49\u5f85', '\u7b49\u5f85']
+          },
+          en: {
+            subtitle: 'Preparing your desktop, apps, and game experience.',
+            authorLabel: 'Developer',
+            authorValue: 'Xingwei Star',
+            gameLabel: 'Indie Game',
+            gameValue: "Rovi's Diary",
+            status: 'Starting system services.',
+            biosHead: 'STAR BIOS :: BOOT SEQUENCE',
+            labels: ['Firmware Check', 'Theme Profile', 'Locale Pack', 'Shell Services', 'Desktop Session'],
+            values: ['Ready', 'Pending', 'Pending', 'Pending', 'Pending']
+          },
+          ja: {
+            subtitle: '\u30c7\u30b9\u30af\u30c8\u30c3\u30d7\u3001\u30a2\u30d7\u30ea\u3001\u30b2\u30fc\u30e0\u4f53\u9a13\u3092\u6e96\u5099\u3057\u3066\u3044\u307e\u3059',
+            authorLabel: '\u958b\u767a\u8005',
+            authorValue: '\u661f\u8587Star',
+            gameLabel: '\u30a4\u30f3\u30c7\u30a3\u30fc\u30b2\u30fc\u30e0',
+            gameValue: '\u300e\u30ed\u30f4\u30a3\u306e\u65e5\u8a18\u300f',
+            status: '\u30b7\u30b9\u30c6\u30e0\u30b5\u30fc\u30d3\u30b9\u3092\u8d77\u52d5\u3057\u3066\u3044\u307e\u3059',
+            biosHead: 'STAR BIOS :: \u8d77\u52d5\u30b7\u30fc\u30b1\u30f3\u30b9',
+            labels: ['\u30d5\u30a1\u30fc\u30e0\u30a6\u30a7\u30a2\u691c\u8a3c', '\u30c6\u30fc\u30de\u8a2d\u5b9a', '\u8a00\u8a9e\u30ea\u30bd\u30fc\u30b9', '\u30b7\u30a7\u30eb\u30b5\u30fc\u30d3\u30b9', '\u30c7\u30b9\u30af\u30c8\u30c3\u30d7\u30bb\u30c3\u30b7\u30e7\u30f3'],
+            values: ['\u6e96\u5099\u5b8c\u4e86', '\u5f85\u6a5f', '\u5f85\u6a5f', '\u5f85\u6a5f', '\u5f85\u6a5f']
+          },
+          ko: {
+            subtitle: '\ub370\uc2a4\ud06c\ud1b1, \uc571, \uac8c\uc784 \uacbd\ud5d8\uc744 \uc900\ube44\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4',
+            authorLabel: '\uac1c\ubc1c\uc790',
+            authorValue: '\u661f\u8587Star',
+            gameLabel: '\uc778\ub514 \uac8c\uc784',
+            gameValue: '\u300e\ub85c\ube44\uc758 \uc77c\uae30\u300f',
+            status: '\uc2dc\uc2a4\ud15c \uc11c\ube44\uc2a4\ub97c \uc2dc\uc791\ud558\uace0 \uc788\uc2b5\ub2c8\ub2e4',
+            biosHead: 'STAR BIOS :: \ubd80\ud305 \uc2dc\ud000\uc2a4',
+            labels: ['\ud38c\uc6e8\uc5b4 \uac80\uc99d', '\ud14c\ub9c8 \ud504\ub85c\ud544', '\uc5b8\uc5b4 \ub9ac\uc18c\uc2a4', '\uc178 \uc11c\ube44\uc2a4', '\ub370\uc2a4\ud06c\ud1b1 \uc138\uc158'],
+            values: ['\uc900\ube44 \uc644\ub8cc', '\ub300\uae30', '\ub300\uae30', '\ub300\uae30', '\ub300\uae30']
+          }
+        };
+        var next = texts[locale] || texts[shortLocale] || texts['zh-CN'];
+        var applyText = function (id, value) {
+          var el = document.getElementById(id);
+          if (el && value != null) el.textContent = value;
+        };
+        applyText('boot-splash-subtitle', next.subtitle);
+        applyText('boot-splash-author-label', next.authorLabel);
+        applyText('boot-splash-author-value', next.authorValue);
+        applyText('boot-splash-game-label', next.gameLabel);
+        applyText('boot-splash-game-value', next.gameValue);
+        applyText('boot-splash-status', next.status);
+        applyText('boot-splash-bios-head', next.biosHead);
+        applyText('boot-bios-firmware-label', next.labels[0]);
+        applyText('boot-bios-theme-label', next.labels[1]);
+        applyText('boot-bios-locale-label', next.labels[2]);
+        applyText('boot-bios-shell-label', next.labels[3]);
+        applyText('boot-bios-desktop-label', next.labels[4]);
+        applyText('boot-bios-firmware-value', next.values[0]);
+        applyText('boot-bios-theme-value', next.values[1]);
+        applyText('boot-bios-locale-value', next.values[2]);
+        applyText('boot-bios-shell-value', next.values[3]);
+        applyText('boot-bios-desktop-value', next.values[4]);
+      } catch (_) {}
+    })();
+  </script>
+
+  <div id="desktop">
+    <div id="desktop-icons"></div>
+    <div id="windows-container"></div>
+    <button type="button" id="desktop-disclaimer-entry" class="desktop-disclaimer-entry">
+      <span class="desktop-disclaimer-entry__dot" aria-hidden="true"></span>
+      <span id="desktop-disclaimer-entry-text"></span>
+    </button>
+    <div id="desktop-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="desktop-refresh" data-i18n="refresh">Refresh</button>
+    </div>
+  </div>
+
+  <div id="app">
+    <div id="taskbar">
+      <button id="start-btn" class="taskbar-start" data-i18n-aria-label="start" aria-label="Start">
+        <svg class="start-icon" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M4 4h6v6H4V4zm10 0h6v6h-6V4zM4 14h6v6H4v-6zm10 0h6v6h-6v-6z"/>
+        </svg>
+        <span data-i18n="start">Start</span>
+      </button>
+      <div class="taskbar-apps-wrap">
+        <button type="button" id="taskbar-scroll-left" class="taskbar-scroll-btn hidden" data-i18n-aria-label="scrollLeft" data-i18n-title="scrollLeft" aria-label="Scroll left" title="Scroll left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 18l-6-6 6-6"/>
+          </svg>
+        </button>
+        <div id="taskbar-apps-viewport">
+        <div id="taskbar-apps"></div>
+        </div>
+        <button type="button" id="taskbar-scroll-right" class="taskbar-scroll-btn hidden" data-i18n-aria-label="scrollRight" data-i18n-title="scrollRight" aria-label="Scroll right" title="Scroll right">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 6l6 6-6 6"/>
+          </svg>
+        </button>
+      </div>
+      <div id="taskbar-tray">
+        <button id="tray-notify" class="tray-icon-btn" data-i18n-title="notificationCenter" data-i18n-aria-label="notificationCenter" title="Notifications" aria-label="Notifications">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2a6 6 0 00-6 6v3.586L4.293 14.293A1 1 0 005 16h14a1 1 0 00.707-1.707L18 11.586V8a6 6 0 00-6-6zm0 20a3 3 0 01-3-3h6a3 3 0 01-3 3z"/>
+          </svg>
+        </button>
+        <span id="tray-time"></span>
+        <span id="tray-lang"></span>
+      </div>
+    </div>
+
+    <div id="taskbar-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="taskbar-show-desktop" data-i18n="showDesktop">Show Desktop</button>
+      <button type="button" id="taskbar-open-taskmgr" data-i18n="taskManager">Task Manager</button>
+      <button type="button" id="taskbar-open-settings" data-i18n="settings">Settings</button>
+      <button type="button" id="taskbar-open-taskbar-settings" data-i18n="taskbarSettings">Taskbar Settings</button>
+    </div>
+    <div id="taskbar-app-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="taskbar-app-close-window" data-i18n="closeWindow">Close Window</button>
+    </div>
+    <div id="filemanager-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="fm-ctx-cut" data-i18n="cut">Cut</button>
+      <button type="button" id="fm-ctx-copy" data-i18n="copy">Copy</button>
+      <button type="button" id="fm-ctx-paste" data-i18n="paste">Paste</button>
+      <button type="button" id="fm-ctx-select-all" data-i18n="selectAll">Select All</button>
+    </div>
+    <div id="text-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="text-ctx-cut" data-i18n="cut">Cut</button>
+      <button type="button" id="text-ctx-copy" data-i18n="copy">Copy</button>
+      <button type="button" id="text-ctx-paste" data-i18n="paste">Paste</button>
+      <button type="button" id="text-ctx-select-all" data-i18n="selectAll">Select All</button>
+    </div>
+    <div id="webview-text-context-menu" class="desktop-context-menu hidden">
+      <button type="button" id="wv-ctx-cut" data-i18n="cut">Cut</button>
+      <button type="button" id="wv-ctx-copy" data-i18n="copy">Copy</button>
+      <button type="button" id="wv-ctx-paste" data-i18n="paste">Paste</button>
+      <button type="button" id="wv-ctx-select-all" data-i18n="selectAll">Select All</button>
+    </div>
+
+    <div id="start-menu" class="hidden">
+      <div class="start-menu-header">
+        <span class="start-menu-title" data-i18n="start">Start</span>
+        <div class="start-menu-search">
+          <svg class="start-menu-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="M21 21l-4.35-4.35"/>
+          </svg>
+          <input type="text" id="start-search" placeholder="" data-i18n-placeholder="searchApps">
+        </div>
+      </div>
+      <div class="start-menu-pinned">
+        <div class="start-menu-section-title" data-i18n="pinned">Pinned</div>
+        <div id="start-pinned-grid"></div>
+      </div>
+      <div class="start-menu-recent">
+        <div class="start-menu-section-title" data-i18n="recent">Recent</div>
+        <div id="start-recent-list"></div>
+      </div>
+      <div class="start-menu-all">
+        <div class="start-menu-section-title" data-i18n="allApps">All Apps</div>
+        <div id="start-all-grid"></div>
+      </div>
+      <div class="start-menu-footer">
+        <button class="start-footer-btn" id="start-power" data-i18n="power">Power</button>
+        <button class="start-footer-btn" id="start-lock" data-i18n="lockScreen">Lock</button>
+        <button class="start-footer-btn" id="start-settings" data-i18n="settings">Settings</button>
+      </div>
+    </div>
+
+    <div id="notification-center" class="notification-center hidden">
+      <div class="nc-header">
+        <span class="nc-title" data-i18n="notificationCenter"></span>
+        <button id="nc-clear" class="nc-clear-btn" data-i18n="clearAll"></button>
+      </div>
+      <div id="nc-list" class="nc-list"></div>
+    </div>
+
+    <div id="lock-screen" class="lock-screen hidden">
+      <div class="lock-card">
+        <div class="lock-time" id="lock-time">00:00</div>
+        <div class="lock-date" id="lock-date">----</div>
+        <div class="lock-user" data-i18n="lockScreenUser"></div>
+        <div class="lock-hint" id="lock-hint"></div>
+        <div id="lock-pin-wrap" class="lock-pin-wrap hidden">
+          <input id="lock-pin" type="password" data-i18n-placeholder="lockScreenPlaceholder" placeholder="">
+          <div id="lock-error" class="lock-error"></div>
+        </div>
+        <button id="lock-unlock" class="start-footer-btn" data-i18n="unlock">Unlock</button>
+      </div>
+      <button id="lock-power" class="start-footer-btn lock-power-btn" data-i18n="power">Power</button>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="i18n/locales.js"></script>
+  <script src="i18n/locales-extra.js"></script>
+  <script src="i18n/locales-browser-downloads.js"></script>
+  <script src="i18n/locales-browser-devtools.js"></script>
+  <script src="i18n/locales-lock.js"></script>
+  <script src="js/games/_kit.js"></script>
+  <script src="js/games/tetris.js"></script>
+  <script src="js/games/snake.js"></script>
+  <script src="js/games/link.js"></script>
+  <script src="js/games/platformer.js"></script>
+  <script src="js/games/landlord.js"></script>
+  <script src="js/games/runner.js"></script>
+  <script src="js/games/tank.js"></script>
+  <script src="js/games/plane.js"></script>
+  <script src="js/games/gomoku.js"></script>
+  <script src="js/games/minesweeper.js"></script>
+  <script src="js/games/game2048.js"></script>
+  <script src="js/games/othello.js"></script>
+  <script src="js/games/sokoban.js"></script>
+  <script src="js/games/sudoku.js"></script>
+  <script src="js/games/solitaire.js"></script>
+  <script src="js/games/carrot-defense.js"></script>
+  <script src="js/star-core.js"></script>
+  <script src="js/apps-registry.js"></script>
+  <script src="js/window-manager.js"></script>
+  <script src="js/file-dialog.js"></script>
+  <script src="js/apps-logic.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/lock.js"></script>
+  <script src="js/text-context-menu.js"></script>
+  <script src="js/webview-context-menu.js"></script>
+  <script src="js/taskbar.js"></script>
+  <script src="js/start-menu.js"></script>
+  <script src="js/desktop.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,114 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Star OS</title>
+  <script>
+    (function () {
+      try {
+        var savedTheme = localStorage.getItem('star-theme');
+        document.documentElement.setAttribute('data-theme', savedTheme === 'light' ? 'light' : 'dark');
+      } catch (_) {
+        document.documentElement.setAttribute('data-theme', 'dark');
+      }
+    })();
+  </script>
+  <link rel="stylesheet" href="styles/main.css">
+  <link rel="stylesheet" href="styles/managed-exe-host.css">
+</head>
+<body>
+  <div class="star-window managed-exe-host" data-app-id="managed-exe">
+    <div class="window-titlebar" id="titlebar" title="">
+      <span class="title-icon" id="title-icon"></span>
+      <span class="title-text" id="title-text"></span>
+      <div class="title-btns">
+        <button type="button" class="title-btn min" id="min-btn" data-action="minimize" title="Minimize" aria-label="Minimize">
+          <svg viewBox="0 0 12 12" fill="currentColor"><rect x="0" y="5" width="12" height="2" rx="0.5"/></svg>
+        </button>
+        <button type="button" class="title-btn max" id="max-btn" data-action="maximize" title="Maximize" aria-label="Maximize"></button>
+        <button type="button" class="title-btn close" id="close-btn" data-action="close" title="Close" aria-label="Close">
+          <svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M2 2l8 8M10 2L2 10"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="window-content managed-exe-surface">
+      <div class="managed-exe-overlay" id="overlay">
+        <div class="managed-exe-card">
+          <div class="managed-exe-spinner"></div>
+          <div class="managed-exe-status" id="status"></div>
+          <div class="managed-exe-hint" id="hint"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+    (function () {
+      const { ipcRenderer } = require('electron');
+      const params = new URLSearchParams(window.location.search);
+      const sessionId = params.get('session') || '';
+      const title = decodeURIComponent(params.get('title') || 'App');
+      const exePath = decodeURIComponent(params.get('path') || '');
+
+      const titleText = document.getElementById('title-text');
+      const titlebar = document.getElementById('titlebar');
+      const titleIcon = document.getElementById('title-icon');
+      const overlay = document.getElementById('overlay');
+      const statusEl = document.getElementById('status');
+      const hintEl = document.getElementById('hint');
+      const maxBtn = document.getElementById('max-btn');
+
+      titleText.textContent = title;
+      titlebar.title = exePath ? (title + '\n' + exePath) : title;
+
+      function defaultIconSvg() {
+        return '<svg viewBox="0 0 24 24" fill="currentColor"><defs><linearGradient id="starManagedIconGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#7c9cff"/><stop offset="100%" stop-color="#50e3c2"/></linearGradient></defs><rect width="20" height="20" x="2" y="2" rx="6" fill="url(#starManagedIconGrad)"/><path d="M9 9h6v2H9zM9 13h4v2H9z" fill="#0b1020"/></svg>';
+      }
+      titleIcon.innerHTML = defaultIconSvg();
+
+      function maximizeSvg(isMax) {
+        if (isMax) {
+          return '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 1.5h6.5V8"/><path d="M1.5 4h6.5v6.5H1.5z"/><path d="M4 4h4V8"/></svg>';
+        }
+        return '<svg viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="1.5" width="9" height="9" rx="0.5"/></svg>';
+      }
+      maxBtn.innerHTML = maximizeSvg(false);
+
+      const send = function (action) { ipcRenderer.send('managed-exe:control', sessionId, action); };
+      document.getElementById('min-btn').addEventListener('click', function () { send('minimize'); });
+      document.getElementById('max-btn').addEventListener('click', function () { send('toggle-maximize'); });
+      document.getElementById('close-btn').addEventListener('click', function () { send('close'); });
+      titlebar.addEventListener('dblclick', function () { send('toggle-maximize'); });
+
+      document.querySelectorAll('.title-btn').forEach(function (btn) {
+        btn.addEventListener('mousedown', function (e) { e.preventDefault(); });
+      });
+
+      ipcRenderer.on('managed-exe:status', function (_e, payload) {
+        if (!payload || payload.sessionId !== sessionId) return;
+        if (payload.message) statusEl.textContent = payload.message;
+        if (payload.detail) hintEl.textContent = payload.detail;
+        if (typeof payload.isMaximized === 'boolean') {
+          maxBtn.innerHTML = maximizeSvg(payload.isMaximized);
+          maxBtn.title = payload.isMaximized ? 'Restore' : 'Maximize';
+          maxBtn.setAttribute('aria-label', payload.isMaximized ? 'Restore' : 'Maximize');
+        }
+        overlay.classList.toggle('ready', payload.type === 'ready');
+        overlay.classList.toggle('error', payload.type === 'error');
+        if (payload.type === 'exit') {
+          overlay.classList.remove('ready');
+          hintEl.textContent = payload.detail || '';
+        }
+      });
+      function requestStatusReplay() {
+        try {
+          ipcRenderer.send('managed-exe:request-status', sessionId);
+        } catch (_) {}
+      }
+      requestStatusReplay();
+      setTimeout(requestStatusReplay, 200);
+    })();
+  </script>
+</body>
+</html>

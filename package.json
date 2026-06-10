@@ -1,0 +1,48 @@
+{
+  "name": "star-os",
+  "version": "1.0.0",
+  "description": "Star 操作系统 - 应用层桌面环境",
+  "main": "main/main.js",
+  "author": "星薇Star",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --dir"
+  },
+  "dependencies": {
+    "7zip-bin": "^5.2.0",
+    "iconv-lite": "^0.6.3",
+    "node-7z": "^3.0.0",
+    "node-pty": "^1.1.0",
+    "ppt": "^0.0.2",
+    "vue": "^3.4.0",
+    "word-extractor": "^1.0.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": "28.3.3",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.star.os",
+    "productName": "Star OS",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main/**/*",
+      "renderer/**/*",
+      "tools/**/*",
+      "scripts/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": ["dir"]
+    },
+    "asar": true,
+    "asarUnpack": [
+      "**/node_modules/node-pty/**",
+      "**/node_modules/7zip-bin/**"
+    ]
+  }
+}
