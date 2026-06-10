@@ -18,6 +18,35 @@ Star OS 是一款运行在**应用层**的桌面操作系统环境。它在 Wind
 
 ---
 
+## 📸 预览 Preview
+
+<p align="center">
+  <img src="image/1.png" alt="Star OS 桌面 · 浅色主题" width="900">
+  <br><em>桌面与应用图标 · 浅色主题</em>
+</p>
+
+<p align="center">
+  <img src="image/5.png" alt="Star OS 桌面 · 深色主题" width="900">
+  <br><em>桌面与应用图标 · 深色主题</em>
+</p>
+
+<p align="center">
+  <img src="image/2.png" alt="Star OS 文件管理器" width="900">
+  <br><em>内置文件管理器</em>
+</p>
+
+<p align="center">
+  <img src="image/3.png" alt="Star OS 内置浏览器" width="900">
+  <br><em>Star 浏览器 · 内置多标签网页浏览</em>
+</p>
+
+<p align="center">
+  <img src="image/4.png" alt="Star OS 内置游戏保卫萝卜" width="900">
+  <br><em>内置小游戏 · 保卫萝卜</em>
+</p>
+
+---
+
 ## 👤 作者与相关项目 Author
 
 | | 链接 |
